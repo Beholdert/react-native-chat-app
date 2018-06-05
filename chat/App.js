@@ -1,9 +1,18 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, Button, ScrollView } from 'react-native';
-import axios from 'axios';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  TextInput, 
+  Button, 
+  ScrollView, 
+  KeyboardAvoidingView,
+  Keyboard
+} from 'react-native';
 import SocketIOClient from 'socket.io-client';
 import Header from './components/Header';
-import Messages from './components/Messages';
+import Message from './components/Message';
+import Styles from './components/Styles';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -27,32 +36,47 @@ export default class App extends React.Component {
     
   }
   sendMessage() {
+    Keyboard.dismiss();
+    this.setState({message: ''});
     this.socket.emit('sendMessage', {message: `${this.state.senderName}: ${this.state.message}`})
   }
   render() {
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior="padding"
+      >
         <Header />
-        <ScrollView>
-          <Messages messages={this.state.messages}/>
+        <ScrollView 
+          style={Styles.messages}
+          ref={ref => this.scrollView = ref}
+          onContentSizeChange={() => {        
+            this.scrollView.scrollToEnd({animated: true});
+        }}
+        >
+          {this.state.messages.map((message, index) => <Message text={message} key={index}/>)}
         </ScrollView>
-        <TextInput placeholder="Имя"
+        <View style={Styles.form}>
+        <TextInput style={Styles.input} placeholder="Имя"
           onChangeText={(senderName) => {this.setState({senderName})}}
         />
-        <TextInput placeholder="Сообщение"
+        <TextInput style={Styles.input} placeholder="Сообщение"
+          value={this.state.message}
           onChangeText={(message) => {this.setState({message})}}
         />
         <Button 
           onPress={this.sendMessage}
-          title="Отправить Сообщение"
+          title="Отправить"
         />
       </View>
+      </KeyboardAvoidingView>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    flex: 1,
   },
 });

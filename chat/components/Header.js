@@ -6,7 +6,7 @@ export default class Header extends Component {
   render() {
     return (
       <View style={styles.header}>
-          <Text style={{color: 'white', fontSize: 40}}>Чат</Text>
+          <Text style={{color: 'white', fontSize: 40, textAlign: 'center'}}>Чат</Text>
       </View>
     );
   }
